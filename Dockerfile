@@ -1,12 +1,18 @@
-FROM golang:1.10
+FROM golang:1.12 AS build-env
 
-ARG USER
-ARG UID
+RUN curl https://glide.sh/get | sh
 
-RUN useradd -m $USER -o -u $UID
-
-RUN chown -R $USER /go
-
-USER $USER
 
 WORKDIR /go/src/app
+COPY glide.yaml /go/src/app
+RUN glide install
+COPY ./go/src/app .
+# RUN go install -v .
+RUN go build -o goapp
+
+FROM golang:1.12
+WORKDIR /app
+COPY --from=build-env /go/src/app/goapp /app/goapp
+COPY data.db /app/data.db
+RUN chmod -R 777 /app
+ENTRYPOINT ["./goapp"]

@@ -1,0 +1,34 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: usersapi
+  labels:
+    app: usersapi
+spec:
+  selector:
+    matchLabels:
+      app: usersapi
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: usersapi
+    spec:
+      containers:
+      - name: usersapi       
+        image: backend-api-go:0.0.1
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "512Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+      imagePullSecrets:
+      - name: registry-secret
+      restartPolicy: Always
